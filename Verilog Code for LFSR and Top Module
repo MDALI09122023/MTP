@@ -1,0 +1,28 @@
+module lfsr_4 #(parameter seed=4’b1001)
+(input clk, input rst_n, input i_enable, output [3:0] o_lfsr);
+reg [3:0] lfsr;
+wire feedback;
+// Create the x^4 + x + 1 feedback
+assign feedback = lfsr[3] ^ lfsr[0];
+always @(posedge clk or negedge rst_n)
+begin
+if (!rst_n)
+lfsr <= seed;
+else if (i_enable)
+lfsr <= {lfsr[2:0], feedback};
+end
+assign o_lfsr = lfsr;
+endmodule
+module top_module (
+output [3:0] o_lfsr,
+input clk, i_enable,
+input rst_n
+);
+// Instantiate the LFSR module
+lfsr_4 #(4’b1001) lfsr_inst (
+.o_lfsr(o_lfsr),
+.clk(clk),
+.rst_n(rst_n),
+.i_enable(i_enable)
+);
+endmodule
