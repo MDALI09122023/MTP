@@ -1,0 +1,58 @@
+Algorithm: KeyGeneration
+Input: BIKE parameters (n, w, t,l)
+Output: Public key (h), Private key (h0, h1,sigma )
+1. Generate h0 and h1 as binary polynomials in R^2:
+R^2 is the ring of binary polynomials modulo x^n - 1.
+Ensure h0 and h1 have odd weights: |h0| = |h1| = w/2.
+2. Generate as a random binary string:
+sigma belongs to {0, 1}^l(uniformly random).
+3. Compute h as:
+h = h1 * h0^(-1), where:
+h1 and h0^(-1) are in R^2.
+h0^(-1) is the multiplicative inverse of h0 modulo x^n -1.
+4. Return:
+Public key: h
+Private key: (h0, h1,sigma)
+
+
+
+///////////********************////////////////////
+Algorithm: Encapsulation
+Input: Public key h
+Output: Ciphertext C = (c0, c1) and Encapsulated Key K
+1. Generate m as a random binary string:
+m <--{0, 1}^l (uniformly random)
+2. Compute the error vectors (e0, e1) as:
+(e0, e1)<--H(m)
+H is a hash function that outputs two binary polynomials in R.
+3. Compute the ciphertext C as:
+c0 = e0 + e1 * h (binary polynomial arithmetic in R)
+c1 = m L(e0, e1) (bitwise XOR of m with L(e0, e1))
+L is a function that derives a binary string from e0 and e1.
+4. Compute the encapsulated key K:
+K<--K(m, C)
+K is derived from m and C using a key derivation function.
+5. Return:
+Ciphertext C = (c0, c1)
+Encapsulated Key K
+
+
+////////////////***************/////////////////////////
+Algorithm: Decapsulation
+Input: Private key (h0, h1, sigma), Ciphertext C = (c0, c1)
+Output: Decapsulated Key K
+1. Compute the syndrome s:
+s<--c0 * h0
+- (*) denotes binary polynomial multiplication in R.
+2. Attempt to decode the syndrome:
+{(e0’, e1’),_|_} = decoder(s, h0, h1)
+If decoding fails, (e0’, e1’) = _|_(failure symbol).
+3. Compute the tentative message m’:
+m’<-- c1 XOR L(e0’, e1’) -- denotes bitwise XOR.
+4. Validate the decoding:
+If H(m’) (e0’, e1’):
+Compute K<--K(s, C) (fallback key derivation).
+Else:
+Compute K<--K(m’, C) (successful key derivation).
+5. Return the key K.
+
