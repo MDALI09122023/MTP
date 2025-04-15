@@ -1,0 +1,32 @@
+import sys
+def print_usage_and_exit():
+sys.stderr.write(f"Usage: {sys.argv[0]} <integer>
+<modulus>\n")
+sys.exit(1)
+def print_error_and_exit():
+sys.stderr.write("Error: Modulus must be a positive
+integer.\n")
+sys.exit(1)
+def compute_modular_inverse(number, modulus):
+if modulus <= 0:
+print_error_and_exit()
+original_num, original_mod = number, modulus
+number %= modulus
+x0, x1, y0, y1 = 0, 1, 1, 0
+while modulus:
+quotient = number // modulus
+number, modulus = modulus, number % modulus
+x0, x1 = x1 - quotient * x0, x0
+y0, y1 = y1 - quotient * y0, y0
+if number != 1:
+print(f"\nNo Modular Inverse. However, the GCD of
+{original_num} and {original_mod} is {number}\n")
+else:
+mod_inverse = x1 % original_mod
+print(f"\nModular Inverse of {original_num} modulo
+{original_mod} is: {mod_inverse}\n")
+if len(sys.argv) != 3:
+print_usage_and_exit()
+NUM, MOD = int(sys.argv[1]), int(sys.argv[2])
+compute_modular_inverse(NUM, MOD)
+
